@@ -1,4 +1,4 @@
-import { loginByUsername, logout, getUserInfo } from '@/api/login'
+import { loginByLoginId, logout, getUserInfo } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 
 const user = {
@@ -44,11 +44,12 @@ const user = {
   },
 
   actions: {
-    // 用户名登录
-    LoginByUsername({ commit }, userInfo) {
-      const username = userInfo.username.trim()
+    // 登录名登录
+    LoginByLoginId({ commit }, userInfo) {
+      const loginId = userInfo.loginId.trim()
+      const kaptcha = userInfo.kaptcha.trim()
       return new Promise((resolve, reject) => {
-        loginByUsername(username, userInfo.password).then(response => {
+        loginByLoginId(loginId, userInfo.password, kaptcha).then(response => {
           const data = response.data
           commit('SET_TOKEN', data.token)
           setToken(response.data.token)
@@ -58,7 +59,20 @@ const user = {
         })
       })
     },
-
+    // 用户名登录
+    // LoginByUsername({ commit }, userInfo) {
+    //   const username = userInfo.username.trim()
+    //   return new Promise((resolve, reject) => {
+    //     loginByUsername(username, userInfo.password).then(response => {
+    //       const data = response.data
+    //       commit('SET_TOKEN', data.token)
+    //       setToken(response.data.token)
+    //       resolve()
+    //     }).catch(error => {
+    //       reject(error)
+    //     })
+    //   })
+    // },
     // 获取用户信息
     GetUserInfo({ commit, state }) {
       return new Promise((resolve, reject) => {

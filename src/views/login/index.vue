@@ -5,14 +5,13 @@
 
       <div class="title-container">
         <h3 class="title">{{$t('login.title')}}</h3>
-        <lang-select class="set-language"></lang-select>
       </div>
 
-      <el-form-item prop="username">
+      <el-form-item prop="loginId">
         <span class="svg-container svg-container_login">
           <svg-icon icon-class="user" />
         </span>
-        <el-input name="username" type="text" v-model="loginForm.username" autoComplete="on" :placeholder="$t('login.username')"
+        <el-input name="loginId" type="text" v-model="loginForm.loginId" autoComplete="on" :placeholder="$t('login.loginId')"
         />
       </el-form-item>
 
@@ -24,6 +23,17 @@
           :placeholder="$t('login.password')" />
         <span class="show-pwd" @click="showPwd">
           <svg-icon icon-class="eye" />
+        </span>
+      </el-form-item>
+
+      <el-form-item prop="kaptcha">
+        <span class="svg-container svg-container_login">
+          <svg-icon icon-class="user" />
+        </span>
+        <el-input name="kaptcha" style="width: 150px" type="text" v-model="loginForm.kaptcha" autoComplete="on" :placeholder="$t('login.kaptcha')"
+        />
+        <span class="show-kaptch">
+           <img :src="kaptchaUrl" @click="changeKaptcha">
         </span>
       </el-form-item>
 
@@ -53,36 +63,44 @@
 </template>
 
 <script>
-import { isvalidUsername } from '@/utils/validate'
-import LangSelect from '@/components/LangSelect'
 import SocialSign from './socialsignin'
 
 export default {
-  components: { LangSelect, SocialSign },
+  components: { SocialSign },
   name: 'login',
   data() {
-    const validateUsername = (rule, value, callback) => {
-      if (!isvalidUsername(value)) {
-        callback(new Error('Please enter the correct user name'))
+    const validateLoginId = (rule, value, callback) => {
+      if (value.length === 0) {
+        callback(new Error(this.$t('login.username_not_empty')))
       } else {
         callback()
       }
     }
     const validatePassword = (rule, value, callback) => {
       if (value.length < 6) {
-        callback(new Error('The password can not be less than 6 digits'))
+        callback(new Error(this.$t('login.password_length_limit')))
+      } else {
+        callback()
+      }
+    }
+    const validateKaptcha = (rule, value, callback) => {
+      if (value.length !== 4) {
+        callback(new Error(this.$t('login.kaptcha_length_limit')))
       } else {
         callback()
       }
     }
     return {
       loginForm: {
-        username: 'admin',
-        password: '1111111'
+        loginId: 'admin',
+        password: '1111111',
+        kaptcha: ''
       },
+      kaptchaUrl: '/kaptcha',
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        loginId: [{ required: true, trigger: 'blur', validator: validateLoginId }],
+        password: [{ required: true, trigger: 'blur', validator: validatePassword }],
+        kaptcha: [{ required: true, trigger: 'blur', validator: validateKaptcha }]
       },
       passwordType: 'password',
       loading: false,
@@ -97,11 +115,14 @@ export default {
         this.passwordType = 'password'
       }
     },
+    changeKaptcha() {
+      this.kaptchaUrl = this.kaptchaUrl + '?tmp=' + Date.now()
+    },
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
-          this.$store.dispatch('LoginByUsername', this.loginForm).then(() => {
+          this.$store.dispatch('LoginByLoginId', this.loginForm).then(() => {
             this.loading = false
             this.$router.push({ path: '/' })
           }).catch(() => {
@@ -144,7 +165,7 @@ export default {
 <style rel="stylesheet/scss" lang="scss">
   /* 修复input 背景不协调 和光标变色 */
   /* Detail see https://github.com/PanJiaChen/vue-element-admin/pull/927 */
- 
+
   $bg:#283443;
   $light_gray:#eee;
   $cursor: #fff;
@@ -250,6 +271,11 @@ $light_gray:#eee;
     color: $dark_gray;
     cursor: pointer;
     user-select: none;
+  }
+  .show-kaptch {
+    position: absolute;
+    right: 0px;
+    cursor: pointer;
   }
   .thirdparty-button {
     position: absolute;

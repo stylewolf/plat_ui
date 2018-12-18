@@ -77,9 +77,14 @@ export default {
     title: '系统登录',
     logIn: '登录',
     username: '账号',
+    loginId: '账号',
     password: '密码',
     any: '随便填',
+    kaptcha: '验证码',
     thirdparty: '第三方登录',
+    username_not_empty: '账号信息不能为空！',
+    password_length_limit: '密码长度必须大于3个字符！',
+    kaptcha_length_limit: '验证码长度必须为4个字符！',
     thirdpartyTips: '本地不能模拟，请结合自己业务进行模拟！！！'
   },
   system: {
